@@ -34,8 +34,8 @@ func serverGRPC(port int) {
 
 	// Add some jobs for test
 	for i := 0; i < 15; i++ {
-		fmt.Println("Example: Creating a new job", i)
+		log.Println("Example: Creating a new job", i)
 		r, e := j.Do(&payload.Task{Data: "This is the payload I will send to Lambda."})
-		fmt.Println("Example: Recevied", r, e)
+		log.Println("Example: Recevied", r, e)
 	}
 }
