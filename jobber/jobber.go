@@ -9,16 +9,17 @@ import (
 
 type Jobber struct {
 	options
-	do  chan *request
-	job Minion
+	do chan task
 }
 
 type options struct {
 	maxConcurrentInvitees uint32
 	callTimeout           time.Duration
+	job                   Minion
 }
 
 var defaultJobberOptions = options{
+	job: &Goroutine{},
 	maxConcurrentInvitees: 10,
 	callTimeout:           time.Second,
 }
@@ -32,9 +33,8 @@ func NewJobber(opt ...JobberOption) *Jobber {
 	}
 
 	s := &Jobber{
-		job:     &Goroutine{},
 		options: opts,
-		do:      make(chan *request),
+		do:      make(chan task),
 	}
 	return s
 }
@@ -50,6 +50,13 @@ func CallTimeout(t time.Duration) JobberOption {
 func MaxConcurrentInvitees(n uint32) JobberOption {
 	return func(o *options) {
 		o.maxConcurrentInvitees = n
+	}
+}
+
+// Minion set the minion system.
+func MinionScheduler(m Minion) JobberOption {
+	return func(o *options) {
+		o.job = m
 	}
 }
 
