@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kavehmz/jobber/handover"
+	"github.com/kavehmz/jobber/payload"
 	"google.golang.org/grpc"
 )
 
@@ -64,7 +64,7 @@ func (g *Goroutine) worker() {
 	}
 	defer conn.Close()
 
-	c := handover.NewHandoverClient(conn)
+	c := payload.NewPayloadClient(conn)
 	stream, err := c.Join(context.Background())
 	if err != nil {
 		log.Println("Failed to connect: %v", err)
@@ -87,7 +87,7 @@ func (g *Goroutine) worker() {
 			// This is what worker does. The rest is the template how to write and strean in grpc
 			time.Sleep(time.Millisecond * 50)
 
-			if err = stream.Send(&handover.Result{Data: time.Now().String()}); err != nil {
+			if err = stream.Send(&payload.Result{Data: time.Now().String()}); err != nil {
 				log.Println("startWorker: Failed to send, ", err)
 				return
 			}

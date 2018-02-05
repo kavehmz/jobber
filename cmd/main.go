@@ -9,11 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/kavehmz/jobber/handover"
 	"github.com/kavehmz/jobber/jobber"
+	"github.com/kavehmz/jobber/payload"
 	"github.com/kelseyhightower/envconfig"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -52,16 +51,11 @@ func main() {
 }
 
 func serverGRPC(port int) *grpc.Server {
-	creds, err := credentials.NewServerTLSFromFile("cert/server-cert.pem", "cert/server-key.pem")
-	if err != nil {
-		log.Fatalf("Failed to setup tls: %v", err)
-	}
-
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		log.Panic("failed to listen: ", err)
 	}
-	s := grpc.NewServer(grpc.Creds(creds))
+	s := grpc.NewServer()
 	reflection.Register(s)
 
 	j := jobber.NewJobber()
@@ -75,9 +69,12 @@ func serverGRPC(port int) *grpc.Server {
 	log.Printf("Grpc Listening on port %d", port)
 
 	go func() {
-		time.Sleep(time.Second * 5)
-		r, e := j.Do(&handover.Task{Data: "TESTTEST"})
-		fmt.Println("Hey:", r, e)
+		for i := 0; i < 100; i++ {
+			fmt.Println("Trying", i)
+			time.Sleep(time.Second * 1)
+			r, e := j.Do(&payload.Task{Data: "TESTTEST"})
+			fmt.Println("Hey:", r, e)
+		}
 	}()
 
 	return s

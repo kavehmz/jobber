@@ -1,18 +1,18 @@
 package jobber
 
 import (
-	"github.com/kavehmz/jobber/handover"
+	"github.com/kavehmz/jobber/payload"
 )
 
-type result struct {
-	result *handover.Result
+type response struct {
+	result *payload.Result
 	err    error
 }
-type payload struct {
-	task *handover.Task
-	back chan result
+type request struct {
+	task *payload.Task
+	back chan response
 }
 
-func setPayload(t *handover.Task) *payload {
-	return &payload{task: t, back: make(chan result)}
+func setRequest(t *payload.Task) *request {
+	return &request{task: t, back: make(chan response)}
 }

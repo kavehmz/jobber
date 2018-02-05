@@ -1,13 +1,10 @@
 syntax = "proto3";
 
-// import "google/protobuf/any.proto";
+package payload;
 
-
-package handover;
-
-// This service will handle the handover of payloads between Workders, which runs on Lambda functions,
+// This service will handle the payload of payloads between Workders, which runs on Lambda functions,
 // and Server, which handles the receive of payload from outsider and send it to workers
-service Handover {
+service Payload {
   rpc Join(stream Result) returns (stream Task) {}
 }
 

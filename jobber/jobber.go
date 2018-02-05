@@ -3,13 +3,13 @@ package jobber
 import (
 	"time"
 
-	"github.com/kavehmz/jobber/handover"
+	"github.com/kavehmz/jobber/payload"
 	"google.golang.org/grpc"
 )
 
 type Jobber struct {
 	options
-	do  chan *payload
+	do  chan *request
 	job Minion
 }
 
@@ -34,7 +34,7 @@ func NewJobber(opt ...JobberOption) *Jobber {
 	s := &Jobber{
 		job:     &Goroutine{},
 		options: opts,
-		do:      make(chan *payload),
+		do:      make(chan *request),
 	}
 	return s
 }
@@ -55,5 +55,5 @@ func MaxConcurrentInvitees(n uint32) JobberOption {
 
 // RegisterGRPC registers jobber service and its implementations to the gRPC
 func (j *Jobber) RegisterGRPC(srv *grpc.Server) {
-	handover.RegisterHandoverServer(srv, j)
+	payload.RegisterPayloadServer(srv, j)
 }
