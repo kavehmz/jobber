@@ -22,7 +22,7 @@ func serverGRPC(port int) {
 		log.Panic("failed to listen: ", err)
 	}
 	s := grpc.NewServer()
-	j := jobber.NewJobber()
+	j := jobber.NewJobber(jobber.MinionScheduler(&jobber.Goroutine{}))
 	j.RegisterGRPC(s)
 
 	log.Printf("Start listening gRPC at %d", port)
@@ -34,8 +34,8 @@ func serverGRPC(port int) {
 
 	// Add some jobs for test
 	for i := 0; i < 15; i++ {
-		fmt.Println("Creating a new job", i)
+		fmt.Println("Example: Creating a new job", i)
 		r, e := j.Do(&payload.Task{Data: "This is the payload I will send to Lambda."})
-		fmt.Println("What we got from Lambda:", r, e)
+		fmt.Println("Example: Recevied", r, e)
 	}
 }

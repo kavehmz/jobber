@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"log"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -17,7 +16,6 @@ import (
 type Goroutine struct {
 	jobs    int32
 	running int32
-	sync.Mutex
 }
 
 func (g *Goroutine) Inbound() {
