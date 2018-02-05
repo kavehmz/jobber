@@ -13,7 +13,7 @@ func (j *Jobber) Do(task *handover.Task) (*handover.Result, error) {
 	payload := setPayload(task)
 
 	go func() {
-		j.job.inbound()
+		j.job.Inbound()
 		j.do <- payload
 	}()
 
@@ -21,10 +21,10 @@ func (j *Jobber) Do(task *handover.Task) (*handover.Result, error) {
 		select {
 		case res := <-payload.back:
 			log.Println("http: received response")
-			j.job.done()
+			j.job.Done()
 			return res.result, res.err
 		case <-time.After(time.Second * 1):
-			j.job.timedout()
+			j.job.Timedout()
 			log.Println("http: Timed out from http server side")
 			return &handover.Result{}, errors.New("timeout")
 		}

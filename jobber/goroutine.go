@@ -9,7 +9,6 @@ import (
 
 	"github.com/kavehmz/jobber/handover"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 // Goroutine is simple Inviter which just spins up a grpc call in goroutine.
@@ -20,7 +19,7 @@ type Goroutine struct {
 	sync.Mutex
 }
 
-func (g *Goroutine) inbound() {
+func (g *Goroutine) Inbound() {
 	log.Println("job inbound")
 	g.Lock()
 	g.jobs++
@@ -29,13 +28,13 @@ func (g *Goroutine) inbound() {
 	}
 	g.Unlock()
 }
-func (g *Goroutine) done() {
+func (g *Goroutine) Done() {
 	log.Println("job done")
 	g.Lock()
 	g.jobs--
 	g.Unlock()
 }
-func (g *Goroutine) timedout() {
+func (g *Goroutine) Timedout() {
 	log.Println("job timedout")
 	g.Lock()
 	g.jobs--
@@ -53,12 +52,12 @@ func (g *Goroutine) worker() {
 		g.running--
 		g.Unlock()
 	}()
-	creds, err := credentials.NewClientTLSFromFile("cert/server-cert.pem", "localhost")
-	if err != nil {
-		log.Fatalf("cert load error: %s", err)
-	}
+	// creds, err := credentials.NewClientTLSFromFile("cert/server-cert.pem", "localhost")
+	// if err != nil {
+	// 	log.Fatalf("cert load error: %s", err)
+	// }
 
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(creds))
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
 	if err != nil {
 		log.Println("Failed to connect: %v", err)
 		return
