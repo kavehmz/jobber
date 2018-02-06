@@ -14,15 +14,18 @@ import (
 // Goroutine is simple Inviter which just spins up a grpc call in goroutine.
 // I can't imagine any use for it except testing the logic.
 type Goroutine struct {
-	jobs    int32
-	running int32
+	jobs     int32
+	running  int32
+	GrpcHost string
+	number   int32
 }
 
 func (g *Goroutine) Inbound() {
-	log.Println("minion: job inbound XXXXXXXXXXXX", g.jobs, g.running)
+	log.Println("minion: job inbound", g.jobs, g.running)
 	atomic.AddInt32(&g.jobs, 1)
 	if g.jobs > g.running-1 {
-		go g.worker()
+		atomic.AddInt32(&g.number, 1)
+		go g.worker(g.number)
 	}
 }
 func (g *Goroutine) Done() {
@@ -35,13 +38,13 @@ func (g *Goroutine) Timedout() {
 }
 
 // This is a dummy worker that ignores the payloads and only sleeps a bit
-func (g *Goroutine) worker() {
-	log.Println("worker: Hi, I was invoked and I am trying to connect to accept jobs")
+func (g *Goroutine) worker(n int32) {
+	log.Printf("worker[%d]: Hi, I was invoked and I am trying to connect to accept jobs\n", n)
 	atomic.AddInt32(&g.running, 1)
 
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	conn, err := grpc.Dial(g.GrpcHost, grpc.WithInsecure())
 	if err != nil {
-		log.Println("worker: Failed to dial: %v", err)
+		log.Printf("worker[%d]: Failed to dial: %v\n", n, err)
 		atomic.AddInt32(&g.running, -1)
 		return
 	}
@@ -50,12 +53,12 @@ func (g *Goroutine) worker() {
 	c := payload.NewPayloadClient(conn)
 	stream, err := c.Join(context.Background())
 	if err != nil {
-		log.Println("worker: Failed to join: %v", err)
+		log.Printf("worker[%d]: Failed to join: %v\n", n, err)
 		atomic.AddInt32(&g.running, -1)
 		return
 	}
 
-	log.Println("worker: I Joined the workforce")
+	log.Printf("worker[%d]: I Joined the workforce\n", n)
 	go func() {
 		for {
 			in, err := stream.Recv()
@@ -64,25 +67,24 @@ func (g *Goroutine) worker() {
 				return
 			}
 			if err != nil {
-				log.Println("worker: received error", err)
+				log.Printf("worker[%d]: received error %v\n", n, err)
 				atomic.AddInt32(&g.running, -1)
 				return
 			}
-			log.Println("worker: reveiced a task from server", in.String())
+			log.Printf("worker[%d]: reveiced a task from server %s\n", n, in.String())
 
 			// This is what worker does. The rest is the template how to write and strean in grpc
 			time.Sleep(time.Millisecond * 900)
-			log.Println("worker: task is done")
+			log.Printf("worker[%d]: task is done\n")
 			if err = stream.Send(&payload.Result{Data: time.Now().String()}); err != nil {
-				log.Println("worker: Failed to send, ", err)
+				log.Printf("worker[%d]: Failed to send, %v\n", n, err)
 				atomic.AddInt32(&g.running, -1)
 				return
 			}
 		}
 	}()
-	<-time.After(time.Second * 5)
-	atomic.AddInt32(&g.running, -1)
-	log.Println("worker: my time is over (5s) Bye!")
+	<-time.After(time.Second * 15)
+	log.Printf("worker[%d]: my time is over (15s) Bye!\n", n)
 	stream.CloseSend()
 	time.Sleep(time.Second)
 }

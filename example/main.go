@@ -4,16 +4,30 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 
 	"github.com/kavehmz/jobber/jobber"
 	"github.com/kavehmz/jobber/payload"
 	"google.golang.org/grpc"
 )
 
+var taskMachine *jobber.Jobber
+
 func main() {
-
 	serverGRPC(50051)
+	serverHTTP(8000)
 
+}
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	resp, err := taskMachine.Do(&payload.Task{Data: "This is the payload I will send to Lambda."})
+	log.Println("Example: Recevied", resp, err)
+	fmt.Fprint(w, resp.Data)
+}
+
+func serverHTTP(port int) {
+	http.HandleFunc("/", hello)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
 
 func serverGRPC(port int) {
@@ -22,8 +36,8 @@ func serverGRPC(port int) {
 		log.Panic("failed to listen: ", err)
 	}
 	s := grpc.NewServer()
-	j := jobber.NewJobber(jobber.MinionScheduler(&jobber.Goroutine{}))
-	j.RegisterGRPC(s)
+	taskMachine = jobber.NewJobber(jobber.MinionScheduler(&jobber.Goroutine{GrpcHost: "localhost:50051"}))
+	taskMachine.RegisterGRPC(s)
 
 	log.Printf("Start listening gRPC at %d", port)
 	go func() {
@@ -32,10 +46,4 @@ func serverGRPC(port int) {
 		}
 	}()
 
-	// Add some jobs for test
-	for i := 0; i < 15; i++ {
-		log.Println("Example: Creating a new job", i)
-		r, e := j.Do(&payload.Task{Data: "This is the payload I will send to Lambda."})
-		log.Println("Example: Recevied", r, e)
-	}
 }
