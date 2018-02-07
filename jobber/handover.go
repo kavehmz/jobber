@@ -29,22 +29,33 @@ func (j *Jobber) Do(t *payload.Task) (*payload.Result, error) {
 
 func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 	log.Println("server: A new minion joined to help")
-	joinTime := time.Now()
+	putCh := make(chan task)
+	getCh := make(chan response)
+	quitCh := make(chan error)
+	quitSend := make(chan error)
 	for {
-		request := <-j.do
-		log.Println("server: new request arrived. Sending the task to the minion")
-		if time.Since(joinTime) > j.maxMinionLifetime {
+		select {
+		case putCh := <-j.do:
+		case resp := <-getCh:
+		case err := <-quitCh:
+			return err
+		case <-time.After(j.maxMinionLifetime):
 			log.Println("server: minion is too old to reply on. returning the task back to channel")
-			j.do <- request
-			return nil
 		}
 
-		if err := stream.Send(request.task); err != nil {
-			log.Println("server: not able to send any message", err)
-			// undelivered message goes back to the queue
-			j.do <- request
-			return err
-		}
+		go func() {
+			select {
+			case r := <-putCh:
+				if err := stream.Send(r.task); err != nil {
+					log.Println("server: not able to send any message", err)
+					r.back <- response{result: &payload.Result{}, err: err}
+					quitCh <- err
+				}
+			case <-quitSend:
+				return
+			}
+
+		}()
 
 		res, err := stream.Recv()
 		if err == io.EOF {
