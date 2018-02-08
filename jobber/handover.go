@@ -28,36 +28,31 @@ func (j *Jobber) Do(t *payload.Task) (*payload.Result, error) {
 
 func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 	log.Println("server: A new minion joined to help")
-	resp := make(chan response)
+
+	resp := make(chan response, 1)
 	var req task
-	quit := make(chan error)
+	quit := make(chan error, 1)
+
+	go func() {
+		<-time.After(j.maxMinionLifetime)
+		log.Println("server: minion is too old to reply on. returning the task back to channel")
+		quit <- nil
+	}()
 	for {
 
 		go func() {
 			for {
 				res, err := stream.Recv()
+				log.Println("server: received the response")
+				resp <- response{result: res, err: err}
 				if err != nil {
 					log.Println("server: received an error", err)
-					res = &payload.Result{}
 					quit <- err
-				}
-				log.Println("server: received the response")
-
-				resp <- response{result: res, err: err}
-
-				if err != nil {
 					return
 				}
-
 			}
 		}()
 
-		// quit has prioiry
-		select {
-		case err := <-quit:
-			return err
-		default:
-		}
 		select {
 		case req = <-j.do:
 			log.Println("server: got a job")
@@ -67,22 +62,15 @@ func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 				j.do <- req
 				return err
 			}
-			log.Println("server: send done")
 			r := <-resp
-			log.Println("server: got answer")
 			select {
 			case req.back <- r:
 				log.Println("server: send the response back to client")
 			default:
 				log.Println("server: channel closed. discarding the response")
 			}
-
 		case err := <-quit:
 			return err
-		case <-time.After(j.maxMinionLifetime):
-			log.Println("server: minion is too old to reply on. returning the task back to channel")
-			return nil
 		}
-
 	}
 }

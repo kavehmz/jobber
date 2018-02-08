@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/kavehmz/jobber/jobber"
 	"github.com/kavehmz/jobber/payload"
@@ -21,6 +22,9 @@ func main() {
 
 func hello(w http.ResponseWriter, r *http.Request) {
 	resp, err := taskMachine.Do(&payload.Task{Data: "This is the payload I will send to Lambda."})
+	if err != nil {
+		resp = &payload.Result{Data: "Because of error result was returned as nil"}
+	}
 	log.Println("Example: Recevied", resp, err)
 	fmt.Fprint(w, resp.Data)
 }
@@ -36,7 +40,7 @@ func serverGRPC(port int) {
 		log.Panic("failed to listen: ", err)
 	}
 	s := grpc.NewServer()
-	taskMachine = jobber.NewJobber(jobber.MinionScheduler(&jobber.Goroutine{GrpcHost: "localhost:50051"}))
+	taskMachine = jobber.NewJobber(jobber.MinionScheduler(&jobber.Goroutine{GrpcHost: "localhost:50051"}), jobber.MaxMinionLifetime(time.Second*13))
 	taskMachine.RegisterGRPC(s)
 
 	log.Printf("Start listening gRPC at %d", port)
