@@ -1,4 +1,4 @@
-package jobber
+package goroutine
 
 import (
 	"context"
@@ -75,7 +75,7 @@ func (g *Goroutine) worker(n int32) {
 
 			// This is what worker does. The rest is the template how to write and strean in grpc
 			time.Sleep(time.Millisecond * 900)
-			log.Printf("worker[%d]: task is done\n")
+			log.Printf("worker[%d]: task is done\n", g.number)
 			if err = stream.Send(&payload.Result{Data: time.Now().String()}); err != nil {
 				log.Printf("worker[%d]: Failed to send, %v\n", n, err)
 				atomic.AddInt32(&g.running, -1)

@@ -21,8 +21,7 @@ type options struct {
 }
 
 var defaultJobberOptions = options{
-	callTimeout: time.Second * 3,
-	job:         &Goroutine{},
+	callTimeout:           time.Second * 3,
 	maxConcurrentInvitees: 10,
 	maxWaitingList:        100,
 	maxMinionLifetime:     time.Second * 12,

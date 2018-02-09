@@ -9,6 +9,7 @@ import (
 
 	"github.com/kavehmz/jobber/jobber"
 	"github.com/kavehmz/jobber/payload"
+	"github.com/kavehmz/jobber/scheduler/goroutine"
 	"google.golang.org/grpc"
 )
 
@@ -40,7 +41,7 @@ func serverGRPC(port int) {
 		log.Panic("failed to listen: ", err)
 	}
 	s := grpc.NewServer()
-	taskMachine = jobber.NewJobber(jobber.MinionScheduler(&jobber.Goroutine{GrpcHost: "localhost:50051"}), jobber.MaxMinionLifetime(time.Second*13))
+	taskMachine = jobber.NewJobber(jobber.MinionScheduler(&goroutine.Goroutine{GrpcHost: "localhost:50051"}), jobber.MaxMinionLifetime(time.Second*13))
 	taskMachine.RegisterGRPC(s)
 
 	log.Printf("Start listening gRPC at %d", port)
