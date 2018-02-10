@@ -40,7 +40,8 @@ func (g *LambdaScheduler) Timedout() {
 }
 
 type input struct {
-	In string `json:"in"`
+	CallBackServer string
+	MaxServeTime   int
 }
 
 func (g *LambdaScheduler) invoke() {
@@ -51,7 +52,7 @@ func (g *LambdaScheduler) invoke() {
 		log.Printf("scheduler[%d]: Limiter error: %v\n", g.number, err)
 	}
 
-	payload, err := json.Marshal(input{In: g.GrpcHost})
+	input, err := json.Marshal(input{CallBackServer: g.GrpcHost})
 	if err != nil {
 		log.Println(err)
 		return
@@ -59,7 +60,7 @@ func (g *LambdaScheduler) invoke() {
 
 	atomic.AddInt32(&g.running, 1)
 	defer func() { atomic.AddInt32(&g.running, -1) }()
-	_, err = g.Lambda.Invoke(&lambda.InvokeInput{FunctionName: aws.String("lambda-handler"), Payload: payload})
+	_, err = g.Lambda.Invoke(&lambda.InvokeInput{FunctionName: aws.String("lambda-handler"), Payload: input})
 	if err != nil {
 		log.Printf("scheduler[%d]: Invitation failed.\n", g.number)
 		return
