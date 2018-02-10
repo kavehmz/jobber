@@ -25,10 +25,8 @@ type LambdaScheduler struct {
 
 func (g *LambdaScheduler) Inbound() {
 	log.Println("minion: job inbound", g.jobs, g.running)
-	g.Limiter.Wait(g.Ctx)
 	atomic.AddInt32(&g.jobs, 1)
 	if g.jobs > g.running-1 {
-		atomic.AddInt32(&g.number, 1)
 		go g.invoke()
 	}
 }
@@ -47,8 +45,11 @@ type input struct {
 
 func (g *LambdaScheduler) invoke() {
 	log.Printf("scheduler[%d]: Hi, I see you need more workers. I will invoke one now.\n", g.number)
-	atomic.AddInt32(&g.running, 1)
-	defer func() { atomic.AddInt32(&g.running, -1) }()
+	log.Printf("scheduler[%d]: Checking the rate.\n", g.number)
+	err := g.Limiter.Wait(g.Ctx)
+	if err != nil {
+		log.Printf("scheduler[%d]: Limiter error: %v\n", g.number, err)
+	}
 
 	payload, err := json.Marshal(input{In: g.GrpcHost})
 	if err != nil {
@@ -56,6 +57,8 @@ func (g *LambdaScheduler) invoke() {
 		return
 	}
 
+	atomic.AddInt32(&g.running, 1)
+	defer func() { atomic.AddInt32(&g.running, -1) }()
 	_, err = g.Lambda.Invoke(&lambda.InvokeInput{FunctionName: aws.String("lambda-handler"), Payload: payload})
 	if err != nil {
 		log.Printf("scheduler[%d]: Invitation failed.\n", g.number)

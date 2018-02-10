@@ -52,7 +52,11 @@ func serverGRPC(port int) {
 	l := rate.NewLimiter(rate.Limit(1), 1)
 
 	taskMachine = jobber.NewJobber(jobber.MinionScheduler(
-		&awslambda.LambdaScheduler{GrpcHost: "localhost:50051", Lambda: fn, Limiter: l}),
+		&awslambda.LambdaScheduler{
+			GrpcHost: "localhost:50051",
+			Lambda:   fn,
+			Limiter:  l,
+		}),
 		jobber.MaxMinionLifetime(time.Second*13),
 	)
 	taskMachine.RegisterGRPC(s)
