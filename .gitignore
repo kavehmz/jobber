@@ -11,3 +11,5 @@
 *.out
 main
 *.pem
+lambda-handler
+*.zip
