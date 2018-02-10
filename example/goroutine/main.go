@@ -1,3 +1,5 @@
+// This example is a dummy one which uses gorourines scheduler.
+// I can't imagine any real world usage for it except examining the idea.
 package main
 
 import (
