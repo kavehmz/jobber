@@ -3,10 +3,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -48,14 +50,14 @@ func serverGRPC(port int) {
 		Region: aws.String("us-east-1"),
 	})
 	fn := lambda.New(sess, &aws.Config{Region: aws.String("us-east-1")})
-	// Set the rate of calling Lambda to 10 calls a second
-	l := rate.NewLimiter(rate.Limit(1), 1)
 
 	taskMachine = jobber.NewJobber(jobber.MinionScheduler(
 		&awslambda.LambdaScheduler{
-			GrpcHost: "localhost:50051",
+			GrpcHost: os.Getenv("GRPC_HOST") + ":50051",
 			Lambda:   fn,
-			Limiter:  l,
+			// Set the rate of calling Lambda to 10 calls a second
+			Limiter: rate.NewLimiter(rate.Limit(1), 1),
+			Ctx:     context.Background(),
 		}),
 		jobber.MaxMinionLifetime(time.Second*13),
 	)

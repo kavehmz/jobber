@@ -52,7 +52,7 @@ func (g *LambdaScheduler) invoke() {
 		log.Printf("scheduler[%d]: Limiter error: %v\n", g.number, err)
 	}
 
-	input, err := json.Marshal(input{CallBackServer: g.GrpcHost})
+	input, err := json.Marshal(input{CallBackServer: g.GrpcHost, MaxServeTime: 15})
 	if err != nil {
 		log.Println(err)
 		return
@@ -62,7 +62,8 @@ func (g *LambdaScheduler) invoke() {
 	defer func() { atomic.AddInt32(&g.running, -1) }()
 	_, err = g.Lambda.Invoke(&lambda.InvokeInput{FunctionName: aws.String("lambda-handler"), Payload: input})
 	if err != nil {
-		log.Printf("scheduler[%d]: Invitation failed.\n", g.number)
+		log.Printf("scheduler[%d]: Invitation failed: %v\n", g.number, err)
 		return
 	}
+	log.Printf("scheduler[%d]: Done with lambda function.\n", g.number)
 }
