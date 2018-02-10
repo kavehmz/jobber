@@ -70,5 +70,4 @@ This solution does not depend on protobuf, grpc or aws lambda but in this implem
 # Test run
 
 `example` includes a dummy test case. It invokes Goroutines instead of Lambda but concept is identical.
-
-
+ 

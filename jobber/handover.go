@@ -2,7 +2,6 @@ package jobber
 
 import (
 	"errors"
-	"io"
 	"log"
 	"time"
 
@@ -29,41 +28,49 @@ func (j *Jobber) Do(t *payload.Task) (*payload.Result, error) {
 
 func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 	log.Println("server: A new minion joined to help")
-	joinTime := time.Now()
+
+	resp := make(chan response, 1)
+	var req task
+	quit := make(chan error, 1)
+
+	go func() {
+		<-time.After(j.maxMinionLifetime)
+		log.Println("server: minion is too old to reply on. returning the task back to channel")
+		quit <- nil
+	}()
 	for {
-		request := <-j.do
-		log.Println("server: new request arrived. Sending the task to the minion")
-		if time.Since(joinTime) > j.maxMinionLifetime {
-			log.Println("server: minion is too old to reply on. returning the task back to channel")
-			j.do <- request
-			return nil
-		}
 
-		if err := stream.Send(request.task); err != nil {
-			log.Println("server: not able to send any message", err)
-			// undelivered message goes back to the queue
-			j.do <- request
-			return err
-		}
-
-		res, err := stream.Recv()
-		if err == io.EOF {
-			log.Println("server: received io.EOF")
-			request.back <- response{result: &payload.Result{}, err: err}
-			return nil
-		}
-		if err != nil {
-			log.Println("server: received error", err)
-			request.back <- response{result: &payload.Result{}, err: err}
-			return err
-		}
-		log.Println("server: received the response")
+		go func() {
+			for {
+				res, err := stream.Recv()
+				log.Println("server: received the response")
+				resp <- response{result: res, err: err}
+				if err != nil {
+					log.Println("server: received an error", err)
+					quit <- err
+					return
+				}
+			}
+		}()
 
 		select {
-		case request.back <- response{result: res}:
-			log.Println("server: send the response back to client")
-		default:
-			log.Println("server: channel closed. discarding the response")
+		case req = <-j.do:
+			log.Println("server: got a job")
+			if err := stream.Send(req.task); err != nil {
+				log.Println("server: not able to send any message", err)
+				j.job.Inbound()
+				j.do <- req
+				return err
+			}
+			r := <-resp
+			select {
+			case req.back <- r:
+				log.Println("server: send the response back to client")
+			default:
+				log.Println("server: channel closed. discarding the response")
+			}
+		case err := <-quit:
+			return err
 		}
 	}
 }

@@ -21,8 +21,7 @@ type options struct {
 }
 
 var defaultJobberOptions = options{
-	callTimeout: time.Second * 3,
-	job:         &Goroutine{},
+	callTimeout:           time.Second * 3,
 	maxConcurrentInvitees: 10,
 	maxWaitingList:        100,
 	maxMinionLifetime:     time.Second * 12,
@@ -73,9 +72,9 @@ func MaxWaitingList(n uint32) JobberOption {
 
 // MaxMinionLifetime set how long server can rely on a minion to sent tasks.
 // Lambda function have max lifetime of 300.
-func MaxMinionLifetime(n uint32) JobberOption {
+func MaxMinionLifetime(d time.Duration) JobberOption {
 	return func(o *options) {
-		o.maxWaitingList = n
+		o.maxMinionLifetime = d
 	}
 }
 
