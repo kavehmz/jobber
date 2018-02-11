@@ -25,14 +25,15 @@ type options struct {
 	maxMinionLifetime     time.Duration
 }
 
-var defaultJobberOptions = options{
+var defaultOptions = options{
 	callTimeout:           time.Second * 3,
 	maxConcurrentInvitees: 10,
 	maxWaitingList:        100,
 	maxMinionLifetime:     time.Second * 12,
 }
 
-type JobberOption func(*options)
+// Option defines the options type to pass to NewJobber
+type Option func(*options)
 
 /*NewJobber return an Jobber with specific settings.
 
@@ -49,8 +50,8 @@ type JobberOption func(*options)
   myJobber.RegisterGRPC(s)
 
 */
-func NewJobber(opt ...JobberOption) *Jobber {
-	opts := defaultJobberOptions
+func NewJobber(opt ...Option) *Jobber {
+	opts := defaultOptions
 	for _, o := range opt {
 		o(&opts)
 	}
@@ -63,28 +64,28 @@ func NewJobber(opt ...JobberOption) *Jobber {
 }
 
 // CallTimeout set the timeout for every single call
-func CallTimeout(t time.Duration) JobberOption {
+func CallTimeout(t time.Duration) Option {
 	return func(o *options) {
 		o.callTimeout = t
 	}
 }
 
 // MaxConcurrentInvitees set maximum number of concurrent invitees.
-func MaxConcurrentInvitees(n uint32) JobberOption {
+func MaxConcurrentInvitees(n uint32) Option {
 	return func(o *options) {
 		o.maxConcurrentInvitees = n
 	}
 }
 
 // Scheduler set the scheduler system.
-func Scheduler(s Minion) JobberOption {
+func Scheduler(s Minion) Option {
 	return func(o *options) {
 		o.scheduler = s
 	}
 }
 
 // MaxWaitingList set buffer size for tasks channel
-func MaxWaitingList(n uint32) JobberOption {
+func MaxWaitingList(n uint32) Option {
 	return func(o *options) {
 		o.maxWaitingList = n
 	}
@@ -93,7 +94,7 @@ func MaxWaitingList(n uint32) JobberOption {
 // MaxMinionLifetime set how long server can rely on a minion to sent tasks.
 // Basically some implmenetations like Lambda function have maximum age (300s)
 // In these cases, based on load type, it might work better if server disconnected on its own terms.
-func MaxMinionLifetime(d time.Duration) JobberOption {
+func MaxMinionLifetime(d time.Duration) Option {
 	return func(o *options) {
 		o.maxMinionLifetime = d
 	}
