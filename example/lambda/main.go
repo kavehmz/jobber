@@ -49,6 +49,9 @@ func serverGRPC(port int) {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1"),
 	})
+	if err != nil {
+		log.Panic("failed to create session: ", err)
+	}
 	fn := lambda.New(sess, &aws.Config{Region: aws.String("us-east-1")})
 
 	taskMachine = jobber.NewJobber(jobber.Scheduler(
