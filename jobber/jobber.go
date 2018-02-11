@@ -34,7 +34,21 @@ var defaultJobberOptions = options{
 
 type JobberOption func(*options)
 
-// NewJobber return an Jobber with specific settings.
+/*NewJobber return an Jobber with specific settings.
+
+  myJobber = jobber.NewJobber(jobber.Scheduler(
+  	&awslambda.LambdaScheduler{
+  		GrpcHost: os.Getenv("GRPC_HOST") + ":50051",
+  		Lambda:   fn,
+  		// Set the rate of calling Lambda to 10 calls a second
+  		Limiter: rate.NewLimiter(rate.Limit(1), 1),
+  		Ctx:     context.Background(),
+  	}),
+  	jobber.MaxMinionLifetime(time.Second*13),
+  )
+  myJobber.RegisterGRPC(s)
+
+*/
 func NewJobber(opt ...JobberOption) *Jobber {
 	opts := defaultJobberOptions
 	for _, o := range opt {
