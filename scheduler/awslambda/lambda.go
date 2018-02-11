@@ -12,7 +12,7 @@ import (
 )
 
 // LambdaScheduler is simple scheduler to invoke long running lambda functions in AWS and
-// Inviting them to connect back by gRPC, bidrectional, to serve mutliple requests.
+// Inviting them to connect back by gRPC, bidrectional, to serve multiple requests.
 type LambdaScheduler struct {
 	GrpcHost string
 	Lambda   *lambda.Lambda
@@ -23,6 +23,7 @@ type LambdaScheduler struct {
 	number   int32
 }
 
+// Inbound is called before a new task is added.
 func (g *LambdaScheduler) Inbound() {
 	log.Println("minion: job inbound", g.jobs, g.running)
 	atomic.AddInt32(&g.jobs, 1)
@@ -30,10 +31,14 @@ func (g *LambdaScheduler) Inbound() {
 		go g.invoke()
 	}
 }
+
+// Done is called when a task is done
 func (g *LambdaScheduler) Done() {
 	log.Println("minion: job done")
 	atomic.AddInt32(&g.jobs, -1)
 }
+
+// Timedout is called when no response was received on time for a task
 func (g *LambdaScheduler) Timedout() {
 	log.Println("minion: job timedout")
 	atomic.AddInt32(&g.jobs, -1)

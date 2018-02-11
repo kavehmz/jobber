@@ -20,6 +20,7 @@ type Goroutine struct {
 	number   int32
 }
 
+// Inbound is called before a new task is added.
 func (g *Goroutine) Inbound() {
 	log.Println("minion: job inbound", g.jobs, g.running)
 	atomic.AddInt32(&g.jobs, 1)
@@ -28,10 +29,14 @@ func (g *Goroutine) Inbound() {
 		go g.worker(g.number)
 	}
 }
+
+// Done is called when a task is done
 func (g *Goroutine) Done() {
 	log.Println("minion: job done")
 	atomic.AddInt32(&g.jobs, -1)
 }
+
+// Timedout is called when no response was received on time for a task
 func (g *Goroutine) Timedout() {
 	log.Println("minion: job timedout")
 	atomic.AddInt32(&g.jobs, -1)

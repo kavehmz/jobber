@@ -1,5 +1,5 @@
 // This example is using the aws lambda scheduler.
-// It needs to run in an enviroment that lambda function can connect back to the gRPC server started by this app.
+// It needs to run in an environment that lambda function can connect back to the gRPC server started by this app.
 package main
 
 import (
