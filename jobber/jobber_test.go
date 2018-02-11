@@ -122,7 +122,7 @@ func TestJobber_QuitOrignore(t *testing.T) {
 func TestJobber_SendOrignore(t *testing.T) {
 	end := make(chan bool)
 	go func() {
-		sendOrignore(nil, nil)
+		sendOrignore(nil, response{})
 		end <- true
 	}()
 
