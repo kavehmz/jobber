@@ -103,5 +103,32 @@ func TestJobber_Join(t *testing.T) {
 	case <-time.After(time.Second * 1):
 		t.Error("Join was still running even after MaxMinionLifetime")
 	}
+}
 
+func TestJobber_QuitOrignore(t *testing.T) {
+	end := make(chan bool)
+	go func() {
+		quitOrignore(nil, nil)
+		end <- true
+	}()
+
+	select {
+	case <-end:
+	case <-time.After(time.Second * 1):
+		t.Error("QuitOrignore did not ignore the nil channel")
+	}
+}
+
+func TestJobber_SendOrignore(t *testing.T) {
+	end := make(chan bool)
+	go func() {
+		quitOrignore(nil, nil)
+		end <- true
+	}()
+
+	select {
+	case <-end:
+	case <-time.After(time.Second * 1):
+		t.Error("SendOrignore did not ignore the nil channel")
+	}
 }

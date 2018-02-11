@@ -36,10 +36,7 @@ func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 	go func() {
 		<-time.After(j.maxMinionLifetime)
 		log.Println("server: minion is too old to reply on. returning the task back to channel")
-		select {
-		case quit <- nil:
-		default:
-		}
+		quitOrignore(quit, nil)
 	}()
 
 	go func() {
@@ -51,10 +48,7 @@ func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 			if err != nil {
 				log.Println("server: received an error", err)
 				// signal to quit
-				select {
-				case quit <- err:
-				default:
-				}
+				quitOrignore(quit, err)
 				return
 			}
 		}
@@ -66,12 +60,7 @@ func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 			log.Println("server: got a job")
 			if err := stream.Send(req.task); err != nil {
 				log.Println("server: not able to send any message", err)
-
-				select {
-				case req.back <- response{result: &payload.Result{}, err: err}:
-				default:
-				}
-
+				sendOrignore(req.back, response{result: &payload.Result{}, err: err})
 				return err
 			}
 			r := <-resp
@@ -84,5 +73,19 @@ func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 		case err := <-quit:
 			return err
 		}
+	}
+}
+
+func quitOrignore(quit chan error, err error) {
+	select {
+	case quit <- err:
+	default:
+	}
+}
+
+func sendOrignore(c chan response, r response) {
+	select {
+	case c <- r:
+	default:
 	}
 }
