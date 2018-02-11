@@ -1,8 +1,12 @@
 # jobber
+========
+[![Go Lang](http://kavehmz.github.io/static/gopher/gopher-front.svg)](https://golang.org/)
+[![GoDoc](https://godoc.org/github.com/kavehmz/jobber?status.svg)](https://godoc.org/github.com/kavehmz/jobber)
+[![Build Status](https://travis-ci.org/kavehmz/jobber.svg?branch=master)](https://travis-ci.org/kavehmz/jobber)
+[![Coverage Status](https://coveralls.io/repos/kavehmz/jobber/badge.svg?branch=master&service=github)](https://coveralls.io/github/kavehmz/jobber?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kavehmz/jobber)](https://goreportcard.com/report/github.com/kavehmz/jobber)
 
 Jobber is an idea and a sample implementation.
-
-Note: there is no unit test in this repo because it is only a demo for a concept.
 
 # Background
 
