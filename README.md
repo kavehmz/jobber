@@ -46,7 +46,7 @@ To invoke Lambda function you need to pass the scheduler to `NewJobber`. `main.g
 
 ```Go
 	s := grpc.NewServer()
-	taskMachine = jobber.NewJobber(jobber.MinionScheduler(&jobber.Goroutine{GrpcHost: "localhost:50051"}))
+	taskMachine = jobber.NewJobber(jobber.Scheduler(&jobber.Goroutine{GrpcHost: "localhost:50051"}))
 	taskMachine.RegisterGRPC(s)
 ```
 

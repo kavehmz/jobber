@@ -56,8 +56,8 @@ func MaxConcurrentInvitees(n uint32) JobberOption {
 	}
 }
 
-// Minion set the minion system.
-func MinionScheduler(m Minion) JobberOption {
+// Scheduler set the scheduler system.
+func Scheduler(m Minion) JobberOption {
 	return func(o *options) {
 		o.job = m
 	}
@@ -71,7 +71,8 @@ func MaxWaitingList(n uint32) JobberOption {
 }
 
 // MaxMinionLifetime set how long server can rely on a minion to sent tasks.
-// Lambda function have max lifetime of 300.
+// Basically some implmenetations like Lambda function have maximum age (300s)
+// In these cases, based on load type, it might work better if server disconnected on its own terms.
 func MaxMinionLifetime(d time.Duration) JobberOption {
 	return func(o *options) {
 		o.maxMinionLifetime = d

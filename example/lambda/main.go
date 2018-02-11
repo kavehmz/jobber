@@ -51,7 +51,7 @@ func serverGRPC(port int) {
 	})
 	fn := lambda.New(sess, &aws.Config{Region: aws.String("us-east-1")})
 
-	taskMachine = jobber.NewJobber(jobber.MinionScheduler(
+	taskMachine = jobber.NewJobber(jobber.Scheduler(
 		&awslambda.LambdaScheduler{
 			GrpcHost: os.Getenv("GRPC_HOST") + ":50051",
 			Lambda:   fn,

@@ -43,7 +43,7 @@ func serverGRPC(port int) {
 		log.Panic("failed to listen: ", err)
 	}
 	s := grpc.NewServer()
-	taskMachine = jobber.NewJobber(jobber.MinionScheduler(&goroutine.Goroutine{GrpcHost: "localhost:50051"}), jobber.MaxMinionLifetime(time.Second*13))
+	taskMachine = jobber.NewJobber(jobber.Scheduler(&goroutine.Goroutine{GrpcHost: "localhost:50051"}), jobber.MaxMinionLifetime(time.Second*13))
 	taskMachine.RegisterGRPC(s)
 
 	log.Printf("Start listening gRPC at %d", port)
