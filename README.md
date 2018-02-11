@@ -7,15 +7,16 @@ jobber
 [![Coverage Status](https://coveralls.io/repos/kavehmz/jobber/badge.svg?branch=master&service=github)](https://coveralls.io/github/kavehmz/jobber?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kavehmz/jobber)](https://goreportcard.com/report/github.com/kavehmz/jobber)
 
-Jobber is an idea and a sample implementation.
+Jobber is an idea and a sample implementation to use AWS Lambda functions for micro requests
 
 # Background
 
-Past - Dealing with rigid bare-matal servers. minimum granuality : -
-Recently - Setting up an auto-scaling environment, using Kubernetes or other tools. Scaling up and down based on incoming requersts. minimum granuality : one VM
-Today - Using Lambda or Google functions we can scale up to 10,000 cpu in few seconds and then scale down to nothing. minimum granuality: one core, 128GB ram
+- Past: Dealing with rigid bare-matal servers. minimum granuality : -
+- Recently - Setting up an auto-scaling environment, using Kubernetes or other tools. Scaling up and down based on incoming requersts. minimum granuality : one VM
+- Today - Using Lambda or Google functions we can scale up to 10,000 cpu in few seconds and then scale down to nothing. minimum granuality: one core, 128GB ram
 
-For both AWS Lambda and Google cloud functions the catch is their mininum 100ms time granuality.
+For both AWS Lambda and Google cloud functions the catch is their __mininum 100ms__ time granuality.
+
 It means if I want to serve my http requests, and they only take 10ms, I will pay 10x more
 because both platforms will charge me for 100ms of time. Based on current pricing it is expensive.
 
@@ -126,4 +127,3 @@ If you are familiar with Lambda function, setting up one is easy.
 But notice lambda functions need to connect back you the grpc server which Jobber depends on. So they must be in the same network (VPC), or somehow they need to have access you your grpc port.
 
 You can see a simple example as `example/lambda` and a sample Lambda function which does nothing at `exmaple/aws_func`.
-
