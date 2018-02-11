@@ -1,5 +1,6 @@
 package jobber
 
+// Minion interface define required functionlities for a scheduler
 type Minion interface {
 	// Inbound is called before a new task is added.
 	Inbound()

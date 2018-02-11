@@ -1,3 +1,7 @@
+// Package jobber provides functionality invoke worker and ask them to join
+// back (e.x by grpc) in a bidirectional way.
+// This way instead of one request, they caller and continuously send a stream
+// of requests to worker.
 package jobber
 
 import (
@@ -7,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Jobber defines main attributes of caller.
 type Jobber struct {
 	options
 	do chan task
@@ -29,6 +34,7 @@ var defaultJobberOptions = options{
 
 type JobberOption func(*options)
 
+// NewJobber return an Jobber with specific settings.
 func NewJobber(opt ...JobberOption) *Jobber {
 	opts := defaultJobberOptions
 	for _, o := range opt {

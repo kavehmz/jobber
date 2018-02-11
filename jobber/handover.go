@@ -8,6 +8,14 @@ import (
 	"github.com/kavehmz/jobber/payload"
 )
 
+/*Do is called when we need to do a job. Do itself will call the scheduler functions to invoke workers.
+
+  resp, err := myJobber.Do(&payload.Task{})
+  if err != nil {
+    resp = &payload.Result{Data: "Because of error result was returned as nil"}
+  }
+
+*/
 func (j *Jobber) Do(t *payload.Task) (*payload.Result, error) {
 	r := task{t, make(chan response)}
 	go func() {
@@ -26,6 +34,7 @@ func (j *Jobber) Do(t *payload.Task) (*payload.Result, error) {
 	}
 }
 
+// Join is the function whilch workers will call (RPC) to report to server and accept jobs
 func (j *Jobber) Join(stream payload.Payload_JoinServer) error {
 	log.Println("server: A new minion joined to help")
 	resp := make(chan response)
