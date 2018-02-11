@@ -1,5 +1,6 @@
-# jobber
-========
+jobber
+=========
+
 [![Go Lang](http://kavehmz.github.io/static/gopher/gopher-front.svg)](https://golang.org/)
 [![GoDoc](https://godoc.org/github.com/kavehmz/jobber?status.svg)](https://godoc.org/github.com/kavehmz/jobber)
 [![Build Status](https://travis-ci.org/kavehmz/jobber.svg?branch=master)](https://travis-ci.org/kavehmz/jobber)
