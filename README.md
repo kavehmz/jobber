@@ -13,7 +13,7 @@ Jobber is an idea and a sample implementation to use AWS Lambda functions for mi
 
 - Past: Dealing with rigid bare-matal servers. minimum granuality : -
 - Recently - Setting up an auto-scaling environment, using Kubernetes or other tools. Scaling up and down based on incoming requersts. minimum granuality : one VM
-- Today - Using Lambda or Google functions we can scale up to 10,000 cpu in few seconds and then scale down to nothing. minimum granuality: one core, 128GB ram
+- Today - Using Lambda or Google functions we can scale up to 10,000 cpu in few seconds and then scale down to nothing. minimum granuality: one core, 128MB ram
 
 For both AWS Lambda and Google cloud functions the catch is their __mininum 100ms__ time granuality.
 
