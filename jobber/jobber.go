@@ -40,7 +40,7 @@ type JobberOption func(*options)
   	&awslambda.LambdaScheduler{
   		GrpcHost: os.Getenv("GRPC_HOST") + ":50051",
   		Lambda:   fn,
-  		// Set the rate of calling Lambda to 10 calls a second
+  		// Set the rate of calling Lambda to 1 calls a second
   		Limiter: rate.NewLimiter(rate.Limit(1), 1),
   		Ctx:     context.Background(),
   	}),
