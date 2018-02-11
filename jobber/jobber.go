@@ -14,7 +14,7 @@ type Jobber struct {
 
 type options struct {
 	callTimeout           time.Duration
-	job                   Minion
+	scheduler             Minion
 	maxConcurrentInvitees uint32
 	maxWaitingList        uint32
 	maxMinionLifetime     time.Duration
@@ -57,9 +57,9 @@ func MaxConcurrentInvitees(n uint32) JobberOption {
 }
 
 // Scheduler set the scheduler system.
-func Scheduler(m Minion) JobberOption {
+func Scheduler(s Minion) JobberOption {
 	return func(o *options) {
-		o.job = m
+		o.scheduler = s
 	}
 }
 

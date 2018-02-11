@@ -12,7 +12,3 @@ type task struct {
 	task *payload.Task
 	back chan response
 }
-
-func setRequest(t *payload.Task) task {
-	return task{task: t, back: make(chan response)}
-}
