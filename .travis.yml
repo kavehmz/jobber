@@ -1,13 +1,16 @@
 language: go
 go:
-  - latest
+  - master
 env:
   - secure: ""
 
-before_install:
+  before_install:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls
   - rm -f main.go
+
+install:
+  - true
 
 script:
     - cd jobber;go test -v -covermode=count -coverprofile=coverage.out .
