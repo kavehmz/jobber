@@ -1,10 +1,10 @@
 language: go
 go:
-  - 1.9.4
+  - 1.9.x
 env:
   - secure: ""
 
-  before_install:
+before_install:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls
   - rm -f main.go
