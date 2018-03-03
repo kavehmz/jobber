@@ -34,7 +34,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		resp = &payload.Result{Data: "Because of error result was returned as nil"}
 	}
-	log.Println("Example: Recevied", resp, err)
+	log.Println("Example: received", resp, err)
 	fmt.Fprint(w, resp.Data)
 }
 

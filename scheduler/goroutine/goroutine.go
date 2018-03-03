@@ -76,7 +76,7 @@ func (g *Goroutine) worker(n int32) {
 				atomic.AddInt32(&g.running, -1)
 				return
 			}
-			log.Printf("worker[%d]: reveiced a task from server %s\n", n, in.String())
+			log.Printf("worker[%d]: received a task from server %s\n", n, in.String())
 
 			// This is what worker does. The rest is the template how to write and strean in grpc
 			time.Sleep(time.Millisecond * 900)

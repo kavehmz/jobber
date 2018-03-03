@@ -60,7 +60,7 @@ func join(in input) {
 				log.Println("worker: received error", err)
 				return
 			}
-			log.Println("worker: reveiced a task from server", in.String())
+			log.Println("worker: received a task from server", in.String())
 
 			// This is what worker does. The rest is the template how to write and strean in grpc
 			time.Sleep(time.Millisecond * 50)
