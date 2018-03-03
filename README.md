@@ -17,8 +17,8 @@ Jobber is an idea and a sample implementation to use AWS Lambda functions for mi
 
 For both AWS Lambda and Google cloud functions there are two catches. They have __high startup time__, near 10ms, and they have __mininum 100ms__ time granuality.
 
-It means if I want to serve my http requests that take 10ms, first I will face near 10ms __delay__ just to start the function,
-then both platforms will charge me for 100ms of time, even though I just needed 10ms. This makes Cloud function not suitable for
+It means if I want to serve my http requests that take 12ms, first I will face near 10ms __delay__ just to start the function,
+then both platforms will charge me for 100ms of time, even though I just needed 12ms. This makes Cloud function not suitable for
 normal usage.
 
 Here will eliminate both issues.
