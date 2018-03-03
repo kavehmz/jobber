@@ -11,11 +11,11 @@ Jobber is an idea and a sample implementation to use AWS Lambda functions for mi
 
 # Background
 
-- Past: Dealing with rigid bare-matal servers. minimum granuality : -
-- Recently - Setting up an auto-scaling environment, using Kubernetes or other tools. Scaling up and down based on incoming requersts. minimum granuality : one VM
-- Today - Using Lambda or Google functions we can scale up to 10,000 cpu in few seconds and then scale down to nothing. minimum granuality: one core, 128MB ram
+- Past: Dealing with rigid bare-matal servers. minimum granularity : -
+- Recently - Setting up an auto-scaling environment, using Kubernetes or other tools. Scaling up and down based on incoming requersts. minimum granularity : one VM
+- Today - Using Lambda or Google functions we can scale up to 10,000 cpu in few seconds and then scale down to nothing. minimum granularity: one core, 128MB ram
 
-For both AWS Lambda and Google cloud functions there are two catches. They have __high startup time__, near 10ms, and they have __mininum 100ms__ time granuality.
+For both AWS Lambda and Google cloud functions there are two catches. They have __high startup time__, near 10ms, and they have __mininum 100ms__ time granularity.
 
 It means if I want to serve my http requests that take 12ms, first I will face near 10ms __delay__ just to start the function,
 then both platforms will charge me for 100ms of time, even though I just needed 12ms. This makes Cloud function not suitable for
@@ -25,7 +25,7 @@ Here will eliminate both issues.
 
 # Solution
 
-The idea is to invoke a Lambda function but instead of asking it to do one reuqest we will __keep it around__ to serve many more with sub microsecond delay. And because it will serve many request we might not care about 100s time granuality neither.
+The idea is to invoke a Lambda function but instead of asking it to do one reuqest we will __keep it around__ to serve many more with sub microsecond delay. And because it will serve many request we might not care about 100s time granularity neither.
 
 Method is easy. But you need to know about grpc and bidirectional connection a bit. Both very simple concepts.
 
