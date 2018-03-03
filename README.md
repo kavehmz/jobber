@@ -15,24 +15,29 @@ Jobber is an idea and a sample implementation to use AWS Lambda functions for mi
 - Recently - Setting up an auto-scaling environment, using Kubernetes or other tools. Scaling up and down based on incoming requersts. minimum granuality : one VM
 - Today - Using Lambda or Google functions we can scale up to 10,000 cpu in few seconds and then scale down to nothing. minimum granuality: one core, 128MB ram
 
-For both AWS Lambda and Google cloud functions the catch is their __mininum 100ms__ time granuality.
+For both AWS Lambda and Google cloud functions there are two catches. They have __high startup time__, near 10ms, and they have __mininum 100ms__ time granuality.
 
-It means if I want to serve my http requests, and they only take 10ms, I will pay 10x more
-because both platforms will charge me for 100ms of time. Based on current pricing it is expensive.
+It means if I want to serve my http requests that take 10ms, first I will face near 10ms __delay__ just to start the function,
+then both platforms will charge me for 100ms of time, even though I just needed 10ms. This makes Cloud function not suitable for
+normal usage.
+
+Here will eliminate both issues.
 
 # Solution
 
-Here the idea is to invoke a Lambda function but instead of asking it to do one reuqest we will keep it around to serve many more.
+The idea is to invoke a Lambda function but instead of asking it to do one reuqest we will __keep it around__ to serve many more with sub microsecond delay. And because it will serve many request we might not care about 100s time granuality neither.
 
-Method is easy.
+Method is easy. But you need to know about grpc and bidirectional connection a bit. Both very simple concepts.
 
 We create a http server and also a gRPC server. When we have traffic we invoke one or more Lambda fuctions.
 
 Those Lambda functions create a bidirectional connection to our gRPC server which is running along with http server.
 
+Lambda functions wont after one request. They stay to get and serve many requests with sub microsecond delay from now on.
+
 Now http server relays the load to Lambda functions through grpc and gets the result back.
 
-We just need a mechanism to invoke enough Lambda function to handle our traffic.
+We just need a mechanism to invoke enough Lambda function to handle our traffic. And when traffic is low to stop them.
 
 This repo has one sample implementation to show the concept.
 
